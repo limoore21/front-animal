@@ -8,10 +8,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        
+
         h1 { text-align: center; color: #4CAF50; margin-bottom: 30px; }
         h2 { color: #333; margin: 20px 0; }
-        
+
         .form-card {
             background: white;
             padding: 20px;
@@ -19,23 +19,23 @@
             margin-bottom: 30px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
+
         .form-card input, .form-card select {
             padding: 10px;
             margin: 5px 5px 5px 0;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        
+
         .form-card input[type="text"],
         .form-card input[type="number"] {
             width: calc(25% - 10px);
         }
-        
+
         .form-card input[type="text"].full-width {
             width: calc(100% - 10px);
         }
-        
+
         button {
             background: #4CAF50;
             color: white;
@@ -44,16 +44,16 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        
+
         button:hover { background: #45a049; }
-        
+
         .animals-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             margin-top: 20px;
         }
-        
+
         .animal-card {
             background: white;
             border-radius: 10px;
@@ -61,18 +61,18 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
-        
+
         .animal-card:hover { transform: translateY(-5px); }
-        
+
         .animal-card img {
             width: 100%;
             height: 200px;
             object-fit: cover;
         }
-        
+
         .animal-info { padding: 15px; }
         .animal-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
-        
+
         .status {
             display: inline-block;
             padding: 4px 12px;
@@ -82,7 +82,7 @@
         }
         .status-waiting { background: #4CAF50; color: white; }
         .status-adopted { background: #ff4444; color: white; }
-        
+
         .actions { margin-top: 10px; }
         .actions button {
             padding: 6px 12px;
@@ -91,7 +91,7 @@
         }
         .edit-btn { background: #2196F3; }
         .delete-btn { background: #ff4444; }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -120,14 +120,14 @@
             cursor: pointer;
             font-size: 20px;
         }
-        
+
         .footer {
             text-align: center;
             padding: 20px;
             margin-top: 40px;
             color: #666;
         }
-        
+
         .loading {
             text-align: center;
             padding: 50px;
@@ -137,183 +137,189 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🐾 Приют для животных</h1>
-        
-        <!-- Форма добавления -->
-        <div class="form-card">
-            <h2>➕ Добавить новое животное</h2>
-            <div>
-                <input type="text" id="name" placeholder="Кличка">
-                <input type="text" id="species" placeholder="Вид (кот/собака)">
-                <input type="text" id="breed" placeholder="Порода">
-                <input type="number" id="age" placeholder="Возраст (мес)">
-                <input type="text" id="photo_url" placeholder="URL фото" class="full-width" style="width: calc(100% - 10px);">
-                <button onclick="addAnimal()">➕ Добавить</button>
-            </div>
-        </div>
-        
-        <!-- Список животных -->
-        <h2>📋 Наши питомцы <span id="count"></span></h2>
-        <div id="animalsList" class="animals-grid">
-            <div class="loading">Загрузка...</div>
-        </div>
-        
-        <div class="footer">
-            <p>🐾 Помоги нам найти дом для наших питомцев!</p>
-        </div>
-    </div>
-    
-    <!-- Модальное окно редактирования -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h2>✏️ Редактировать животное</h2>
-            <input type="hidden" id="edit_id">
-            <input type="text" id="edit_name" placeholder="Кличка">
-            <input type="text" id="edit_species" placeholder="Вид">
-            <input type="text" id="edit_breed" placeholder="Порода">
-            <input type="number" id="edit_age" placeholder="Возраст">
-            <select id="edit_status">
-                <option value="waiting">🏠 Ждёт хозяина</option>
-                <option value="adopted">✅ Усыновлен</option>
-            </select>
-            <input type="text" id="edit_photo_url" placeholder="URL фото">
-            <button onclick="updateAnimal()">💾 Сохранить</button>
+<div class="container">
+    <h1>🐾 Приют для животных</h1>
+
+    <!-- Форма добавления -->
+    <div class="form-card">
+        <h2>➕ Добавить новое животное</h2>
+        <div>
+            <input type="text" id="name" placeholder="Кличка">
+            <input type="text" id="species" placeholder="Вид (кот/собака)">
+            <input type="text" id="breed" placeholder="Порода">
+            <input type="number" id="age" placeholder="Возраст (мес)">
+            <input type="text" id="photo_url" placeholder="URL фото" class="full-width" style="width: calc(100% - 10px);">
+            <button onclick="addAnimal()">➕ Добавить</button>
         </div>
     </div>
 
-    <script>
-        const API_URL = 'http://localhost:8001';  // API на порту 8001
-        
-        // Загрузить всех животных
-        async function loadAnimals() {
-            try {
-                const response = await fetch(`${API_URL}/?path=animals`);
-                const animals = await response.json();
-                
-                document.getElementById('count').innerHTML = `(${animals.length})`;
-                
-                const container = document.getElementById('animalsList');
-                if (animals.length === 0) {
-                    container.innerHTML = '<div class="loading">🐾 Пока нет животных. Добавьте первого питомца!</div>';
-                    return;
-                }
-                
-                container.innerHTML = animals.map(animal => `
-                    <div class="animal-card">
-                        <img src="${animal.photo_url || 'https://via.placeholder.com/300x200?text=Нет+фото'}" 
-                             onerror="this.src='https://via.placeholder.com/300x200?text=Нет+фото'">
-                        <div class="animal-info">
-                            <div class="animal-name">${animal.name}</div>
-                            <div>${animal.species} ${animal.breed ? `• ${animal.breed}` : ''}</div>
-                            <div>Возраст: ${animal.age} мес.</div>
-                            <span class="status status-${animal.status}">
-                                ${animal.status === 'waiting' ? '🏠 Ждёт хозяина' : '✅ Усыновлен'}
-                            </span>
-                            <div class="actions">
-                                <button class="edit-btn" onclick="openEditModal(${animal.id})">✏️ Редактировать</button>
-                                <button class="delete-btn" onclick="deleteAnimal(${animal.id})">🗑️ Удалить</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Ошибка:', error);
-                document.getElementById('animalsList').innerHTML = '<div class="loading">❌ Ошибка загрузки. Запусти API на порту 8001</div>';
-            }
+    <!-- Список животных -->
+    <h2>📋 Наши питомцы <span id="count"></span></h2>
+    <div id="animalsList" class="animals-grid">
+        <div class="loading">Загрузка...</div>
+    </div>
+
+    <div class="footer">
+        <p>🐾 Помоги нам найти дом для наших питомцев!</p>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2>✏️ Редактировать животное</h2>
+        <input type="hidden" id="edit_id">
+        <input type="text" id="edit_name" placeholder="Кличка">
+        <input type="text" id="edit_species" placeholder="Вид">
+        <input type="text" id="edit_breed" placeholder="Порода">
+        <input type="number" id="edit_age" placeholder="Возраст">
+        <select id="edit_status">
+            <option value="waiting">🏠 Ждёт хозяина</option>
+            <option value="adopted">✅ Усыновлен</option>
+        </select>
+        <input type="text" id="edit_photo_url" placeholder="URL фото">
+        <button onclick="updateAnimal()">💾 Сохранить</button>
+    </div>
+</div>
+
+<script>
+    // ========== API НАСТРОЙКИ ==========
+    const API_URL = 'http://api.shelter.local/index.php';
+
+    async function apiRequest(endpoint, method = 'GET', data = null) {
+        const options = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' }
+        };
+        if (data && (method === 'POST' || method === 'PUT')) {
+            options.body = JSON.stringify(data);
         }
-        
-        // Добавить животное
-        async function addAnimal() {
-            const animal = {
-                name: document.getElementById('name').value,
-                species: document.getElementById('species').value,
-                breed: document.getElementById('breed').value,
-                age: document.getElementById('age').value,
-                photo_url: document.getElementById('photo_url').value
-            };
-            
-            if (!animal.name || !animal.species || !animal.age) {
-                alert('Заполните обязательные поля: Кличка, Вид, Возраст');
+
+        let url = `${API_URL}`;
+        if (endpoint) {
+            url += `?q=${endpoint}`;
+        }
+
+        const response = await fetch(url, options);
+        return await response.json();
+    }
+
+    // Загрузить всех животных
+    async function loadAnimals() {
+        try {
+            const animals = await apiRequest('animals');
+
+            document.getElementById('count').innerHTML = `(${animals.length})`;
+
+            const container = document.getElementById('animalsList');
+            if (animals.length === 0) {
+                container.innerHTML = '<div class="loading">🐾 Пока нет животных. Добавьте первого питомца!</div>';
                 return;
             }
-            
-            try {
-                await fetch(`${API_URL}/?path=animals`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(animal)
-                });
-                
-                // Очистить форму
-                document.getElementById('name').value = '';
-                document.getElementById('species').value = '';
-                document.getElementById('breed').value = '';
-                document.getElementById('age').value = '';
-                document.getElementById('photo_url').value = '';
-                
-                loadAnimals();
-            } catch (error) {
-                alert('Ошибка добавления: ' + error);
-            }
+
+            container.innerHTML = animals.map(animal => `
+                <div class="animal-card">
+                    <img src="${animal.photo_url || 'https://via.placeholder.com/300x200?text=Нет+фото'}"
+                         onerror="this.src='https://via.placeholder.com/300x200?text=Нет+фото'">
+                    <div class="animal-info">
+                        <div class="animal-name">${animal.name}</div>
+                        <div>${animal.species} ${animal.breed ? `• ${animal.breed}` : ''}</div>
+                        <div>Возраст: ${animal.age} мес.</div>
+                        <span class="status status-${animal.status}">
+                            ${animal.status === 'waiting' ? '🏠 Ждёт хозяина' : '✅ Усыновлен'}
+                        </span>
+                        <div class="actions">
+                            <button class="edit-btn" onclick="openEditModal(${animal.id})">✏️ Редактировать</button>
+                            <button class="delete-btn" onclick="deleteAnimal(${animal.id})">🗑️ Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('animalsList').innerHTML = '<div class="loading">❌ Ошибка загрузки API</div>';
         }
-        
-        // Открыть модалку редактирования
-        async function openEditModal(id) {
-            const response = await fetch(`${API_URL}/?path=animals/${id}`);
-            const animal = await response.json();
-            
-            document.getElementById('edit_id').value = animal.id;
-            document.getElementById('edit_name').value = animal.name;
-            document.getElementById('edit_species').value = animal.species;
-            document.getElementById('edit_breed').value = animal.breed || '';
-            document.getElementById('edit_age').value = animal.age;
-            document.getElementById('edit_status').value = animal.status;
-            document.getElementById('edit_photo_url').value = animal.photo_url || '';
-            
-            document.getElementById('editModal').style.display = 'flex';
+    }
+
+    // Добавить животное
+    async function addAnimal() {
+        const animal = {
+            name: document.getElementById('name').value,
+            species: document.getElementById('species').value,
+            breed: document.getElementById('breed').value,
+            age: document.getElementById('age').value,
+            photo_url: document.getElementById('photo_url').value
+        };
+
+        if (!animal.name || !animal.species || !animal.age) {
+            alert('Заполните обязательные поля: Кличка, Вид, Возраст');
+            return;
         }
-        
-        // Обновить животное
-        async function updateAnimal() {
-            const id = document.getElementById('edit_id').value;
-            const animal = {
-                name: document.getElementById('edit_name').value,
-                species: document.getElementById('edit_species').value,
-                breed: document.getElementById('edit_breed').value,
-                age: document.getElementById('edit_age').value,
-                status: document.getElementById('edit_status').value,
-                photo_url: document.getElementById('edit_photo_url').value
-            };
-            
-            await fetch(`${API_URL}/?path=animals/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(animal)
-            });
-            
-            closeModal();
+
+        try {
+            await apiRequest('animals', 'POST', animal);
+
+            document.getElementById('name').value = '';
+            document.getElementById('species').value = '';
+            document.getElementById('breed').value = '';
+            document.getElementById('age').value = '';
+            document.getElementById('photo_url').value = '';
+
+            loadAnimals();
+        } catch (error) {
+            alert('Ошибка добавления: ' + error);
+        }
+    }
+
+    // Открыть модалку редактирования
+    async function openEditModal(id) {
+        const animal = await apiRequest(`animals/${id}`);
+
+        document.getElementById('edit_id').value = animal.id;
+        document.getElementById('edit_name').value = animal.name;
+        document.getElementById('edit_species').value = animal.species;
+        document.getElementById('edit_breed').value = animal.breed || '';
+        document.getElementById('edit_age').value = animal.age;
+        document.getElementById('edit_status').value = animal.status;
+        document.getElementById('edit_photo_url').value = animal.photo_url || '';
+
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    // Обновить животное
+    async function updateAnimal() {
+        const id = document.getElementById('edit_id').value;
+        const animal = {
+            name: document.getElementById('edit_name').value,
+            species: document.getElementById('edit_species').value,
+            breed: document.getElementById('edit_breed').value,
+            age: document.getElementById('edit_age').value,
+            status: document.getElementById('edit_status').value,
+            photo_url: document.getElementById('edit_photo_url').value
+        };
+
+        await apiRequest(`animals/${id}`, 'PUT', animal);
+
+        closeModal();
+        loadAnimals();
+    }
+
+    // Удалить животное
+    async function deleteAnimal(id) {
+        if (confirm('Точно удалить животное?')) {
+            await apiRequest(`animals/${id}`, 'DELETE');
             loadAnimals();
         }
-        
-        // Удалить животное
-        async function deleteAnimal(id) {
-            if (confirm('Точно удалить животное?')) {
-                await fetch(`${API_URL}/?path=animals/${id}`, {
-                    method: 'DELETE'
-                });
-                loadAnimals();
-            }
-        }
-        
-        // Закрыть модалку
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-        
-        // Загрузить при старте
-        loadAnimals();
-    </script>
+    }
+
+    // Закрыть модалку
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Загрузить при старте
+    loadAnimals();
+</script>
 </body>
 </html>
